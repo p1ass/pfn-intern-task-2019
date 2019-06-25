@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"fmt"
@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/naoki-kishi/pfn-intern-task-2019/worker/domain"
 )
 
 func TestClient_GetJob(t *testing.T) {
@@ -15,7 +17,7 @@ func TestClient_GetJob(t *testing.T) {
 		q := r.URL.Query().Get("time")
 
 		if q == "05:13:10" {
-			data, err := ioutil.ReadFile("./tests/sample_data/test_00001.job")
+			data, err := ioutil.ReadFile("../tests/sample_data/test_00001.job")
 			if err != nil {
 				w.WriteHeader(http.StatusNotFound)
 				fmt.Fprintf(w, "なし")
@@ -41,7 +43,7 @@ func TestClient_GetJob(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    *Job
+		want    *domain.Job
 		wantErr bool
 	}{
 		{
@@ -52,10 +54,10 @@ func TestClient_GetJob(t *testing.T) {
 			args: args{
 				t: time.Date(0, 1, 1, 5, 13, 10, 0, time.UTC),
 			},
-			want: &Job{
+			want: &domain.Job{
 				ID:       0,
 				Created:  time.Date(0, 1, 1, 5, 13, 10, 0, time.UTC),
-				Priority: Low,
+				Priority: domain.Low,
 				Tasks:    []int{3, 8, 10, 1},
 			},
 			wantErr: false,

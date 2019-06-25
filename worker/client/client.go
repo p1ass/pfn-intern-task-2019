@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"bufio"
@@ -7,17 +7,19 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/naoki-kishi/pfn-intern-task-2019/worker/domain"
 )
 
 type Client struct {
 	addr string
 }
 
-func NewClient() *Client {
-	return &Client{}
+func NewClient(addr string) *Client {
+	return &Client{addr}
 }
 
-func (c *Client) GetJob(t time.Time) (*Job, error) {
+func (c *Client) GetJob(t time.Time) (*domain.Job, error) {
 
 	timeStr := t.Format("15:04:05")
 	query := url.Values{}
@@ -28,7 +30,7 @@ func (c *Client) GetJob(t time.Time) (*Job, error) {
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("job not found")
+		return nil, &domain.JobNotFoundError{}
 	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("response is not OK status=%d", resp.StatusCode)
 	}
@@ -36,7 +38,7 @@ func (c *Client) GetJob(t time.Time) (*Job, error) {
 	defer resp.Body.Close()
 	scanner := bufio.NewScanner(resp.Body)
 
-	job := &Job{}
+	job := &domain.Job{}
 
 	for scanner.Scan() {
 		switch scanner.Text() {
@@ -62,9 +64,9 @@ func (c *Client) GetJob(t time.Time) (*Job, error) {
 			scanner.Scan()
 			p := scanner.Text()
 			if p == "Low" {
-				job.Priority = Low
+				job.Priority = domain.Low
 			} else if p == "High" {
-				job.Priority = High
+				job.Priority = domain.High
 			}
 
 		case "[Tasks]":
