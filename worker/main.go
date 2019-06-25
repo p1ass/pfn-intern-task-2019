@@ -34,7 +34,8 @@ outer:
 		if err != nil {
 			switch e := err.(type) {
 			case *domain.JobNotFoundError:
-				if len(logs) != 0 && worker.NumOfJob() == 0 {
+				//TODO 送られてきたデータを見て時間のインクリメントをやめる処理を実装する
+				if current == time.Date(0, 1, 1, 1, 59, 59, 0, time.UTC) {
 					break outer
 				}
 			default:
@@ -47,14 +48,12 @@ outer:
 			point += newJob.Tasks[0]
 		}
 
-		if worker.NumOfJob() != 0 {
-			l := &Log{current, point}
-			logs = append(logs, l)
-		}
+		l := &Log{current, point}
+		logs = append(logs, l)
 		current = current.Add(time.Duration(interval) * time.Second)
 	}
 
 	for _, l := range logs {
-		fmt.Println(l.timestamp, l.Point)
+		fmt.Printf("%s, %d\n", l.timestamp.Format("15:04:05"), l.Point)
 	}
 }
