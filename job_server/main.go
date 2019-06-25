@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/naoki-kishi/pfn-intern-task-2019/server"
+	"github.com/naoki-kishi/pfn-intern-task-2019/job_server/server"
 )
 
 func main() {
