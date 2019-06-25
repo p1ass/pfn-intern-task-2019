@@ -24,6 +24,20 @@ func TestJob_Work(t *testing.T) {
 		wantDone  bool
 	}{
 		{
+			name: "1つのタスクが丁度終わる",
+			fields: fields{
+				ID:          0,
+				Created:     time.Time{},
+				Priority:    Low,
+				Tasks:       []int{1},
+				CurrentTask: 0,
+			},
+			args: args{
+				secs: 1,
+			},
+			wantPoint: 0,
+			wantDone:  true,
+		}, {
 			name: "1秒進める",
 			fields: fields{
 				ID:          0,
@@ -125,10 +139,10 @@ func TestJob_Work(t *testing.T) {
 			}
 			gotPoint, gotDone := j.Work(tt.args.secs)
 			if gotPoint != tt.wantPoint {
-				t.Errorf("Job.Work() gotPoint = %v, want %v", gotPoint, tt.wantPoint)
+				t.Errorf("Job.Work() gotPoint = %v, wantPoint %v", gotPoint, tt.wantPoint)
 			}
 			if gotDone != tt.wantDone {
-				t.Errorf("Job.Work() gotDone = %v, want %v", gotDone, tt.wantDone)
+				t.Errorf("Job.Work() gotDone = %v, wantPoint %v", gotDone, tt.wantDone)
 			}
 		})
 	}
