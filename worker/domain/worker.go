@@ -1,7 +1,5 @@
 package domain
 
-import "fmt"
-
 type Worker struct {
 	workingJobs []*Job
 }
@@ -22,7 +20,6 @@ func (w *Worker) ExecuteAllJob(interval int) int {
 
 		currentPoint, done := j.Work(interval)
 		point += currentPoint
-		fmt.Println(currentPoint, done)
 		if !done {
 			newWorkingJob = append(newWorkingJob, w.workingJobs[i])
 		}
