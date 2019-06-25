@@ -31,13 +31,13 @@ func (s *Server) Start() error {
 func (s *Server) readJob() {
 	files, err := ioutil.ReadDir(s.dir)
 	if err != nil {
-		log.Fatalf("failed to read job files : %#v", err) // jobを読み込めなかったらサーバを落としてよい。
+		log.Fatalf("failed to read directory : %s", err) // jobを読み込めなかったらサーバを落としてよい。
 	}
 
 	for _, f := range files {
 		fp, err := os.Open(filepath.Join(s.dir, f.Name()))
 		if err != nil {
-			log.Fatalf("failed to read job files : %#v", err) // jobを読み込めなかったらサーバを落としてよい。
+			log.Fatalf("failed to read job files : %s", err) // jobを読み込めなかったらサーバを落としてよい。
 		}
 		defer fp.Close()
 
@@ -51,7 +51,7 @@ func (s *Server) readJob() {
 		}
 
 		if err = scanner.Err(); err != nil {
-			log.Fatalf("failed to read job files : %#v", err) // jobを読み込めなかったらサーバを落としてよい。
+			log.Fatalf("failed to read job files : %s", err) // jobを読み込めなかったらサーバを落としてよい。
 		}
 	}
 
