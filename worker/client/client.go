@@ -67,6 +67,12 @@ func (c *Client) GetJob(t time.Time) (*domain.Job, error) {
 				job.Priority = domain.Low
 			} else if p == "High" {
 				job.Priority = domain.High
+			} else {
+				priority, err := strconv.Atoi(p)
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse priority: %s", err)
+				}
+				job.Priority = domain.Priority(priority)
 			}
 
 		case "[Tasks]":
