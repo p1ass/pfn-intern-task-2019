@@ -7,17 +7,21 @@ import (
 
 func TestWorker_ExecuteAllJob(t *testing.T) {
 	type fields struct {
-		workingJobs []*Job
+		workingJobs  []*Job
+		jobQueue     []*Job
+		currentPoint int
+		capacity     int
 	}
 	type args struct {
-		interval int
+		secs int
 	}
 	tests := []struct {
-		name      string
-		fields    fields
-		args      args
-		wantPoint int
-		wantNum   int
+		name         string
+		fields       fields
+		args         args
+		wantPoint    int
+		wantNum      int
+		wantQueueNum int
 	}{
 		{
 			name: "1秒経過したとき正しいポイントが返ってくる",
@@ -38,12 +42,46 @@ func TestWorker_ExecuteAllJob(t *testing.T) {
 						CurrentTask: 0,
 					},
 				},
+				jobQueue:     []*Job{},
+				currentPoint: 5,
+				capacity:     10000000,
 			},
 			args: args{
-				interval: 1,
+				secs: 1,
 			},
-			wantPoint: 3,
-			wantNum:   2,
+			wantPoint:    3,
+			wantNum:      2,
+			wantQueueNum: 0,
+		},
+		{
+			name: "2秒経過したとき正しいポイントが返ってくる",
+			fields: fields{
+				workingJobs: []*Job{
+					{
+						ID:          0,
+						Created:     time.Time{},
+						Priority:    0,
+						Tasks:       []int{3},
+						CurrentTask: 0,
+					},
+					{
+						ID:          1,
+						Created:     time.Time{},
+						Priority:    0,
+						Tasks:       []int{3, 1},
+						CurrentTask: 0,
+					},
+				},
+				jobQueue:     []*Job{},
+				currentPoint: 6,
+				capacity:     10000000,
+			},
+			args: args{
+				secs: 2,
+			},
+			wantPoint:    2,
+			wantNum:      2,
+			wantQueueNum: 0,
 		},
 		{
 			name: "完了したJobはwokingJobから消える",
@@ -64,25 +102,97 @@ func TestWorker_ExecuteAllJob(t *testing.T) {
 						CurrentTask: 0,
 					},
 				},
+				jobQueue:     []*Job{},
+				currentPoint: 4,
+				capacity:     10000000,
 			},
 			args: args{
-				interval: 1,
+				secs: 1,
 			},
-			wantPoint: 2,
-			wantNum:   1,
+			wantPoint:    2,
+			wantNum:      1,
+			wantQueueNum: 0,
+		},
+		{
+			name: "capacityを超えたときjobQueueにjobが移動する",
+			fields: fields{
+				workingJobs: []*Job{
+					{
+						ID:          0,
+						Created:     time.Time{},
+						Priority:    0,
+						Tasks:       []int{1, 10},
+						CurrentTask: 0,
+					},
+					{
+						ID:          1,
+						Created:     time.Time{},
+						Priority:    0,
+						Tasks:       []int{3, 1},
+						CurrentTask: 0,
+					},
+				},
+				jobQueue:     []*Job{},
+				currentPoint: 4,
+				capacity:     10,
+			},
+			args: args{
+				secs: 1,
+			},
+			wantPoint:    10,
+			wantNum:      1,
+			wantQueueNum: 1,
+		},
+		{
+			name: "capacityの枠が空いた時jobQueueのjobがworkingJobに移動する",
+			fields: fields{
+				workingJobs: []*Job{
+					{
+						ID:          0,
+						Created:     time.Time{},
+						Priority:    0,
+						Tasks:       []int{8},
+						CurrentTask: 0,
+					},
+				},
+				jobQueue: []*Job{
+					{
+						ID:          1,
+						Created:     time.Time{},
+						Priority:    0,
+						Tasks:       []int{3, 1},
+						CurrentTask: 0,
+					},
+				},
+				currentPoint: 8,
+				capacity:     10,
+			},
+			args: args{
+				secs: 1,
+			},
+			wantPoint:    10,
+			wantNum:      2,
+			wantQueueNum: 0,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := &Worker{
-				workingJobs: tt.fields.workingJobs,
+				workingJobs:  tt.fields.workingJobs,
+				jobQueue:     tt.fields.jobQueue,
+				currentPoint: tt.fields.currentPoint,
+				capacity:     tt.fields.capacity,
 			}
-			if got := w.ExecuteAllJob(tt.args.interval); got != tt.wantPoint {
+			if got := w.ExecuteAllJob(tt.args.secs); got != tt.wantPoint {
 				t.Errorf("Worker.ExecuteAllJob() = %v, wantPoint=%v", got, tt.wantPoint)
 			}
 
 			if len(w.workingJobs) != tt.wantNum {
 				t.Errorf("len(workingJobs) = %v, wantNum=%v", len(w.workingJobs), tt.wantNum)
+			}
+
+			if len(w.jobQueue) != tt.wantQueueNum {
+				t.Errorf("len(jobQueue) = %v, wantQueueNum=%v", len(w.jobQueue), tt.wantQueueNum)
 			}
 		})
 	}
