@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"container/heap"
 	"testing"
 	"time"
 )
@@ -9,6 +10,7 @@ func TestWorker_ExecuteAllJob(t *testing.T) {
 	type fields struct {
 		workingJobs  []*Job
 		jobQueue     []*Job
+		jobPQ        *JobPriorityQueue
 		currentPoint int
 		capacity     int
 	}
@@ -174,12 +176,55 @@ func TestWorker_ExecuteAllJob(t *testing.T) {
 			wantNum:      2,
 			wantQueueNum: 0,
 		},
+
+		{
+			name: "優先度が高いjobが先にworkingJobに移動する",
+			fields: fields{
+				workingJobs: []*Job{
+					{
+						ID:          0,
+						Created:     time.Time{},
+						Priority:    0,
+						Tasks:       []int{8},
+						CurrentTask: 0,
+					},
+				},
+				jobQueue: []*Job{
+					{
+						ID:          1,
+						Created:     time.Time{},
+						Priority:    0,
+						Tasks:       []int{4, 1},
+						CurrentTask: 0,
+					}, {
+						ID:          1,
+						Created:     time.Time{},
+						Priority:    1,
+						Tasks:       []int{3, 1},
+						CurrentTask: 0,
+					},
+				},
+				currentPoint: 8,
+				capacity:     10,
+			},
+			args: args{
+				secs: 1,
+			},
+			wantPoint:    10,
+			wantNum:      2,
+			wantQueueNum: 1,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			pq := NewJobPriorityQueue()
+			heap.Init(pq)
+			for _, j := range tt.fields.jobQueue {
+				heap.Push(pq, j)
+			}
 			w := &Worker{
 				workingJobs:  tt.fields.workingJobs,
-				jobQueue:     tt.fields.jobQueue,
+				jobPQ:        pq,
 				currentPoint: tt.fields.currentPoint,
 				capacity:     tt.fields.capacity,
 			}
@@ -191,8 +236,8 @@ func TestWorker_ExecuteAllJob(t *testing.T) {
 				t.Errorf("len(workingJobs) = %v, wantNum=%v", len(w.workingJobs), tt.wantNum)
 			}
 
-			if len(w.jobQueue) != tt.wantQueueNum {
-				t.Errorf("len(jobQueue) = %v, wantQueueNum=%v", len(w.jobQueue), tt.wantQueueNum)
+			if w.jobPQ.Len() != tt.wantQueueNum {
+				t.Errorf("w.jobPQ.Len() = %v, wantQueueNum=%v", w.jobPQ.Len(), tt.wantQueueNum)
 			}
 		})
 	}

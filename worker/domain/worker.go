@@ -1,14 +1,19 @@
 package domain
 
+import "container/heap"
+
 type Worker struct {
 	workingJobs  []*Job
-	jobQueue     []*Job
+	jobPQ        *JobPriorityQueue
 	currentPoint int
 	capacity     int
 }
 
 func NewWorker(cap int) *Worker {
-	return &Worker{capacity: cap}
+	pq := NewJobPriorityQueue()
+	heap.Init(pq)
+
+	return &Worker{jobPQ: pq, capacity: cap}
 }
 
 func (w *Worker) AddJob(j *Job) {
@@ -25,7 +30,7 @@ func (w *Worker) addJobToWorking(j *Job) {
 }
 
 func (w *Worker) addJobToQueue(j *Job) {
-	w.jobQueue = append(w.jobQueue, j)
+	heap.Push(w.jobPQ, j)
 }
 
 func (w *Worker) ExecuteAllJob(secs int) int {
@@ -64,14 +69,16 @@ func (w *Worker) CurrentPoint() int {
 
 func (w *Worker) moveJobToWorking() int {
 	point := 0
-	for len(w.jobQueue) > 0 {
-		j := w.jobQueue[0]
-		if w.currentPoint+j.Tasks[j.CurrentTask] <= w.capacity {
-			w.addJobToWorking(j)
-			w.jobQueue = w.jobQueue[1:]
-			point += j.Tasks[j.CurrentTask]
-		} else {
-			break
+	for w.jobPQ.Len() > 0 {
+		if j, ok := heap.Pop(w.jobPQ).(*Job); ok {
+
+			if w.currentPoint+j.Tasks[j.CurrentTask] <= w.capacity {
+				w.addJobToWorking(j)
+				point += j.Tasks[j.CurrentTask]
+			} else {
+				heap.Push(w.jobPQ, j)
+				break
+			}
 		}
 	}
 	return point
