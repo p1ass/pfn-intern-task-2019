@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"time"
@@ -16,15 +17,17 @@ type Log struct {
 }
 
 func main() {
+	capacity := flag.Int("c", 15, "Capacity")
+	port := flag.String("p", "8080", "Server port number")
+	flag.Parse()
 
 	logs := []*Log{}
-
-	cli := client.NewClient("http://localhost:8080")
+	cli := client.NewClient("http://localhost:" + *port)
 
 	current := time.Date(0, 1, 1, 0, 0, 0, 0, time.UTC)
 	interval := 1
 
-	worker := domain.NewWorker()
+	worker := domain.NewWorker(*capacity)
 
 outer:
 	for {

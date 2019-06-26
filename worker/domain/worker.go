@@ -2,10 +2,11 @@ package domain
 
 type Worker struct {
 	workingJobs []*Job
+	capacity    int
 }
 
-func NewWorker() *Worker {
-	return &Worker{}
+func NewWorker(cap int) *Worker {
+	return &Worker{capacity: cap}
 }
 
 func (w *Worker) AddJob(j *Job) {
