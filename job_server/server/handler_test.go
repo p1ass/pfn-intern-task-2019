@@ -34,7 +34,7 @@ func TestServer_GetJobHandler(t *testing.T) {
 	}
 
 	s := NewServer("../tests/sample_data", 0)
-	testServer := httptest.NewServer(http.HandlerFunc(s.GetJobHandler()))
+	testServer := httptest.NewServer(http.HandlerFunc(s.GetJobHandler))
 	defer testServer.Close()
 
 	for _, tt := range tests {
