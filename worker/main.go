@@ -2,26 +2,22 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"time"
+
+	"github.com/naoki-kishi/pfn-intern-task-2019/worker/logging"
 
 	"github.com/naoki-kishi/pfn-intern-task-2019/worker/domain"
 
 	"github.com/naoki-kishi/pfn-intern-task-2019/worker/client"
 )
 
-type Log struct {
-	timestamp time.Time
-	Point     int
-}
-
 func main() {
 	capacity := flag.Int("c", 15, "Capacity")
 	port := flag.String("p", "8080", "Server port number")
 	flag.Parse()
 
-	logs := []*Log{}
+	logger := logging.NewLogger()
 	cli := client.NewClient("http://localhost:" + *port)
 
 	current := time.Date(0, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -50,12 +46,9 @@ outer:
 			worker.AddJob(newJob)
 		}
 
-		l := &Log{current, worker.CurrentPoint()}
-		logs = append(logs, l)
+		logger.Add(logging.NewLog(current, worker.CurrentPoint()))
 		current = current.Add(time.Duration(interval) * time.Second)
 	}
 
-	for _, l := range logs {
-		fmt.Printf("%s, %d\n", l.timestamp.Format("15:04:05"), l.Point)
-	}
+	logger.Print()
 }
