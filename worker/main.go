@@ -31,14 +31,14 @@ func main() {
 
 outer:
 	for {
-		point := worker.ExecuteAllJob(interval)
+		worker.ExecuteAllJob(interval)
 
 		newJob, err := cli.GetJob(current)
 		if err != nil {
 			switch e := err.(type) {
 			case *domain.JobNotFoundError:
 				//TODO 送られてきたデータを見て時間のインクリメントをやめる処理を実装する
-				if current == time.Date(0, 1, 1, 1, 59, 59, 0, time.UTC) {
+				if current == time.Date(0, 1, 1, 1, 29, 59, 0, time.UTC) {
 					break outer
 				}
 			default:
@@ -48,10 +48,9 @@ outer:
 
 		if newJob != nil {
 			worker.AddJob(newJob)
-			point += newJob.Tasks[0]
 		}
 
-		l := &Log{current, point}
+		l := &Log{current, worker.CurrentPoint()}
 		logs = append(logs, l)
 		current = current.Add(time.Duration(interval) * time.Second)
 	}
