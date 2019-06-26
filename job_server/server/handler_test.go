@@ -21,13 +21,13 @@ func TestServer_GetJobHandler(t *testing.T) {
 		{
 			name: "Jobが存在する時間",
 			fields: fields{
-				time: "05:13:10",
+				time: "00:00:01",
 			},
-			want: getWantBytes("../tests/sample_data/test_00001.job", t),
+			want: getWantBytes("../tests/sample_data/00001.job", t),
 		}, {
 			name: "Jobが存在しない時間",
 			fields: fields{
-				time: "00:00:01",
+				time: "00:00:02",
 			},
 			want: []byte("なし"),
 		},

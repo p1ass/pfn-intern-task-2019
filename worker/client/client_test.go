@@ -16,8 +16,8 @@ func TestClient_GetJob(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query().Get("time")
 
-		if q == "05:13:10" {
-			data, err := ioutil.ReadFile("../tests/sample_data/test_00001.job")
+		if q == "00:00:01" {
+			data, err := ioutil.ReadFile("../tests/sample_data/00001.job")
 			if err != nil {
 				w.WriteHeader(http.StatusNotFound)
 				fmt.Fprintf(w, "なし")
@@ -52,13 +52,13 @@ func TestClient_GetJob(t *testing.T) {
 				addr: testServer.URL,
 			},
 			args: args{
-				t: time.Date(0, 1, 1, 5, 13, 10, 0, time.UTC),
+				t: time.Date(0, 1, 1, 0, 0, 1, 0, time.UTC),
 			},
 			want: &domain.Job{
-				ID:       0,
-				Created:  time.Date(0, 1, 1, 5, 13, 10, 0, time.UTC),
+				ID:       1,
+				Created:  time.Date(0, 1, 1, 0, 00, 1, 0, time.UTC),
 				Priority: domain.Low,
-				Tasks:    []int{3, 8, 10, 1},
+				Tasks:    []int{5, 6, 7},
 			},
 			wantErr: false,
 		},

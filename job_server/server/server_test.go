@@ -24,7 +24,7 @@ func TestServer_readJob(t *testing.T) {
 				timeMemo: map[string]string{},
 				port:     0,
 			},
-			want: map[string]string{"05:13:10": "test_00001.job", "00:00:01s": "test_00003.job"},
+			want: map[string]string{"0:00:01": "00001.job", "00:00:03": "00002.job"},
 		},
 	}
 	ctx := context.Background()

@@ -13,13 +13,9 @@ func TestJob_Work(t *testing.T) {
 		Tasks       []int
 		CurrentTask int
 	}
-	type args struct {
-		secs int
-	}
 	tests := []struct {
 		name      string
 		fields    fields
-		args      args
 		wantPoint int
 		wantDone  bool
 	}{
@@ -32,9 +28,6 @@ func TestJob_Work(t *testing.T) {
 				Tasks:       []int{1},
 				CurrentTask: 0,
 			},
-			args: args{
-				secs: 1,
-			},
 			wantPoint: 0,
 			wantDone:  true,
 		}, {
@@ -46,25 +39,7 @@ func TestJob_Work(t *testing.T) {
 				Tasks:       []int{5, 4, 3},
 				CurrentTask: 0,
 			},
-			args: args{
-				secs: 1,
-			},
 			wantPoint: 4,
-			wantDone:  false,
-		},
-		{
-			name: "2秒進める",
-			fields: fields{
-				ID:          0,
-				Created:     time.Time{},
-				Priority:    Low,
-				Tasks:       []int{5, 4, 3},
-				CurrentTask: 0,
-			},
-			args: args{
-				secs: 2,
-			},
-			wantPoint: 3,
 			wantDone:  false,
 		},
 		{
@@ -73,28 +48,10 @@ func TestJob_Work(t *testing.T) {
 				ID:          0,
 				Created:     time.Time{},
 				Priority:    Low,
-				Tasks:       []int{5, 4, 3},
+				Tasks:       []int{1, 4, 3},
 				CurrentTask: 0,
-			},
-			args: args{
-				secs: 5,
 			},
 			wantPoint: 4,
-			wantDone:  false,
-		},
-		{
-			name: "2つめのタスクに突入する",
-			fields: fields{
-				ID:          0,
-				Created:     time.Time{},
-				Priority:    Low,
-				Tasks:       []int{5, 4, 3},
-				CurrentTask: 0,
-			},
-			args: args{
-				secs: 6,
-			},
-			wantPoint: 3,
 			wantDone:  false,
 		},
 		{
@@ -103,26 +60,8 @@ func TestJob_Work(t *testing.T) {
 				ID:          0,
 				Created:     time.Time{},
 				Priority:    Low,
-				Tasks:       []int{5, 4, 3},
+				Tasks:       []int{1},
 				CurrentTask: 0,
-			},
-			args: args{
-				secs: 12,
-			},
-			wantPoint: 0,
-			wantDone:  true,
-		},
-		{
-			name: "すべてのタスク以上の時間が経過する",
-			fields: fields{
-				ID:          0,
-				Created:     time.Time{},
-				Priority:    Low,
-				Tasks:       []int{5, 4, 3},
-				CurrentTask: 0,
-			},
-			args: args{
-				secs: 13,
 			},
 			wantPoint: 0,
 			wantDone:  true,
@@ -137,7 +76,7 @@ func TestJob_Work(t *testing.T) {
 				Tasks:       tt.fields.Tasks,
 				CurrentTask: tt.fields.CurrentTask,
 			}
-			gotPoint, gotDone := j.Work(tt.args.secs)
+			gotPoint, gotDone := j.Work()
 			if gotPoint != tt.wantPoint {
 				t.Errorf("Job.Work() gotPoint = %v, wantPoint %v", gotPoint, tt.wantPoint)
 			}

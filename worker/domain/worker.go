@@ -1,30 +1,79 @@
 package domain
 
 type Worker struct {
-	workingJobs []*Job
+	workingJobs  []*Job
+	jobQueue     []*Job
+	currentPoint int
+	capacity     int
 }
 
-func NewWorker() *Worker {
-	return &Worker{}
+func NewWorker(cap int) *Worker {
+	return &Worker{capacity: cap}
 }
 
 func (w *Worker) AddJob(j *Job) {
-	w.workingJobs = append(w.workingJobs, j)
+	if w.currentPoint+j.Tasks[j.CurrentTask] > w.capacity {
+		w.addJobToQueue(j)
+	} else {
+		w.addJobToWorking(j)
+	}
 }
 
-func (w *Worker) ExecuteAllJob(interval int) int {
-	point := 0
-	newWorkingJob := []*Job{}
-	for i := 0; i < len(w.workingJobs); i++ {
-		j := w.workingJobs[i]
+func (w *Worker) addJobToWorking(j *Job) {
+	w.workingJobs = append(w.workingJobs, j)
+	w.currentPoint += j.Tasks[j.CurrentTask]
+}
 
-		currentPoint, done := j.Work(interval)
-		point += currentPoint
-		if !done {
-			newWorkingJob = append(newWorkingJob, w.workingJobs[i])
+func (w *Worker) addJobToQueue(j *Job) {
+	w.jobQueue = append(w.jobQueue, j)
+}
+
+func (w *Worker) ExecuteAllJob(secs int) int {
+	sumPoint := 0
+
+	for i := 0; i < secs; i++ {
+		sumPoint = 0
+
+		newWorkingJob := []*Job{}
+
+		for i := 0; i < len(w.workingJobs); i++ {
+			j := w.workingJobs[i]
+
+			point, done := j.Work()
+
+			if sumPoint+point > w.capacity {
+				w.addJobToQueue(j)
+			} else {
+				sumPoint += point
+				if !done {
+					newWorkingJob = append(newWorkingJob, j)
+				}
+			}
+		}
+
+		w.workingJobs = newWorkingJob
+		w.currentPoint = sumPoint
+		w.moveJobToWorking()
+	}
+	return w.currentPoint
+}
+
+func (w *Worker) CurrentPoint() int {
+	return w.currentPoint
+}
+
+func (w *Worker) moveJobToWorking() int {
+	point := 0
+	for len(w.jobQueue) > 0 {
+		j := w.jobQueue[0]
+		if w.currentPoint+j.Tasks[j.CurrentTask] <= w.capacity {
+			w.addJobToWorking(j)
+			w.jobQueue = w.jobQueue[1:]
+			point += j.Tasks[j.CurrentTask]
+		} else {
+			break
 		}
 	}
-	w.workingJobs = newWorkingJob
 	return point
 }
 
