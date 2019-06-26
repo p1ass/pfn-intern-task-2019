@@ -23,7 +23,7 @@ func NewServer(dir string, port int) *Server {
 }
 
 func (s *Server) Start() error {
-	http.HandleFunc("/", s.GetJobHandler())
+	http.HandleFunc("/", s.GetJobHandler)
 	log.Println("Starting server...")
 	return http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
 }
