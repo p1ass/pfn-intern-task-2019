@@ -24,11 +24,15 @@ func (j *Job) Work() (point int, done bool) {
 
 	if j.Tasks[j.CurrentTask] == 0 {
 		j.CurrentTask++
-	}
-
-	//すべてのタスクが完了したので削除する (TODO 計算量がO(n)なので別の本心を考える)
-	if j.CurrentTask == len(j.Tasks) {
 		return 0, true
 	}
+
 	return j.Tasks[j.CurrentTask], false
+}
+
+func (j *Job) AlreadyCompleted() bool {
+	if j.CurrentTask == len(j.Tasks) {
+		return true
+	}
+	return false
 }

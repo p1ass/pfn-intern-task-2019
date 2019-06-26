@@ -51,8 +51,8 @@ func TestJob_Work(t *testing.T) {
 				Tasks:       []int{1, 4, 3},
 				CurrentTask: 0,
 			},
-			wantPoint: 4,
-			wantDone:  false,
+			wantPoint: 0,
+			wantDone:  true,
 		},
 		{
 			name: "すべてのタスクが丁度完了する",
