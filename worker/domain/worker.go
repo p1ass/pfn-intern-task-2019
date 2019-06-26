@@ -1,6 +1,8 @@
 package domain
 
-import "container/heap"
+import (
+	"container/heap"
+)
 
 type Worker struct {
 	workingJobs  []*Job
@@ -17,7 +19,7 @@ func NewWorker(cap int) *Worker {
 }
 
 func (w *Worker) AddJob(j *Job) {
-	if w.currentPoint+j.Tasks[j.CurrentTask] > w.capacity {
+	if w.currentPoint+j.Tasks[j.CurrentTask] > w.capacity || w.jobPQ.Len() != 0 {
 		w.addJobToQueue(j)
 	} else {
 		w.addJobToWorking(j)
@@ -46,11 +48,11 @@ func (w *Worker) ExecuteAllJob(secs int) int {
 
 			point, done := j.Work()
 
-			if sumPoint+point > w.capacity {
-				w.addJobToQueue(j)
-			} else {
-				sumPoint += point
-				if !done {
+			if !j.AlreadyCompleted() {
+				if done {
+					w.addJobToQueue(j)
+				} else {
+					sumPoint += point
 					newWorkingJob = append(newWorkingJob, j)
 				}
 			}
@@ -71,7 +73,6 @@ func (w *Worker) moveJobToWorking() int {
 	point := 0
 	for w.jobPQ.Len() > 0 {
 		if j, ok := heap.Pop(w.jobPQ).(*Job); ok {
-
 			if w.currentPoint+j.Tasks[j.CurrentTask] <= w.capacity {
 				w.addJobToWorking(j)
 				point += j.Tasks[j.CurrentTask]
