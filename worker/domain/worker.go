@@ -15,8 +15,13 @@ func (w *Worker) AddJob(j *Job) {
 	if w.currentPoint+j.Tasks[j.CurrentTask] > w.capacity {
 		w.addJobToQueue(j)
 	} else {
-		w.workingJobs = append(w.workingJobs, j)
+		w.addJobToWorking(j)
 	}
+}
+
+func (w *Worker) addJobToWorking(j *Job) {
+	w.workingJobs = append(w.workingJobs, j)
+	w.currentPoint += j.Tasks[j.CurrentTask]
 }
 
 func (w *Worker) addJobToQueue(j *Job) {
@@ -48,8 +53,12 @@ func (w *Worker) ExecuteAllJob(secs int) int {
 
 		w.workingJobs = newWorkingJob
 		w.currentPoint = sumPoint
-		w.currentPoint += w.moveJobToWorking()
+		w.moveJobToWorking()
 	}
+	return w.currentPoint
+}
+
+func (w *Worker) CurrentPoint() int {
 	return w.currentPoint
 }
 
@@ -58,7 +67,7 @@ func (w *Worker) moveJobToWorking() int {
 	for len(w.jobQueue) > 0 {
 		j := w.jobQueue[0]
 		if w.currentPoint+j.Tasks[j.CurrentTask] <= w.capacity {
-			w.workingJobs = append(w.workingJobs, j)
+			w.addJobToWorking(j)
 			w.jobQueue = w.jobQueue[1:]
 			point += j.Tasks[j.CurrentTask]
 		} else {
