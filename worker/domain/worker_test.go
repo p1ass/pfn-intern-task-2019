@@ -204,7 +204,7 @@ func TestWorker_ExecuteAllJob(t *testing.T) {
 					},
 				},
 				currentPoint: 8,
-				capacity:     10,
+				capacity:     11,
 			},
 			args: args{
 				secs: 1,
@@ -242,6 +242,43 @@ func TestWorker_ExecuteAllJob(t *testing.T) {
 			},
 			wantPoint:    10,
 			wantNum:      1,
+			wantQueueNum: 1,
+		},
+		{
+			name: "優先順位が同じ時余っているキャパシティ以下のタスクを持っているJobを先に処理する",
+			fields: fields{
+				workingJobs: []*Job{
+					{
+						ID:          0,
+						Created:     time.Date(0, 1, 1, 0, 0, 0, 0, time.UTC),
+						Priority:    0,
+						Tasks:       []int{2, 5},
+						CurrentTask: 0,
+					},
+				},
+				jobQueue: []*Job{
+					{
+						ID:          1,
+						Created:     time.Date(0, 1, 1, 0, 0, 1, 0, time.UTC),
+						Priority:    1,
+						Tasks:       []int{10, 1},
+						CurrentTask: 0,
+					}, {
+						ID:          1,
+						Created:     time.Date(0, 1, 1, 0, 0, 2, 0, time.UTC),
+						Priority:    1,
+						Tasks:       []int{8, 1},
+						CurrentTask: 0,
+					},
+				},
+				currentPoint: 1,
+				capacity:     15,
+			},
+			args: args{
+				secs: 1,
+			},
+			wantPoint:    9,
+			wantNum:      2,
 			wantQueueNum: 1,
 		},
 	}

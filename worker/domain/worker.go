@@ -60,6 +60,8 @@ func (w *Worker) ExecuteAllJob(secs int) int {
 
 		w.workingJobs = newWorkingJob
 		w.currentPoint = sumPoint
+
+		w.updatePQ()
 		w.moveJobToWorking()
 	}
 	return w.currentPoint
@@ -87,4 +89,9 @@ func (w *Worker) moveJobToWorking() int {
 
 func (w *Worker) NumOfJob() int {
 	return len(w.workingJobs)
+}
+
+func (w *Worker) updatePQ() {
+	w.jobPQ.SetUnusedCap(w.capacity - w.currentPoint)
+	heap.Init(w.jobPQ)
 }
