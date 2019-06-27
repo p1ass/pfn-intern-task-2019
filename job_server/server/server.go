@@ -28,6 +28,7 @@ func (s *Server) Start() error {
 	return http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
 }
 
+// key が Created、 value が ファイル名のハッシュマップを作成し、リクエストごとのファイルの探索をO(1)で出来るようにする
 func (s *Server) readJob() {
 	files, err := ioutil.ReadDir(s.dir)
 	if err != nil {

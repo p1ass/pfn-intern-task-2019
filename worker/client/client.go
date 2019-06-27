@@ -19,11 +19,13 @@ func NewClient(addr string) *Client {
 	return &Client{addr}
 }
 
+//GetJob は引数で与えられた時刻のジョブをサーバーから取得する関数です。
 func (c *Client) GetJob(t time.Time) (*domain.Job, error) {
 
 	timeStr := t.Format("15:04:05")
 	query := url.Values{}
 	query.Add("time", timeStr)
+
 	resp, err := http.Get(c.addr + "?" + query.Encode())
 	if err != nil {
 		return nil, fmt.Errorf("failed to request job: %s", err)

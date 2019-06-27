@@ -19,12 +19,12 @@ func main() {
 
 	logger := logging.NewLogger()
 	cli := client.NewClient("http://localhost:" + *port)
+	worker := domain.NewWorker(*capacity)
 
 	current := time.Date(0, 1, 1, 0, 0, 0, 0, time.UTC)
 	interval := 1
 
-	worker := domain.NewWorker(*capacity)
-
+	//時間を進めるループ
 outer:
 	for {
 		worker.ExecuteAllJob(interval)
@@ -33,7 +33,7 @@ outer:
 		if err != nil {
 			switch e := err.(type) {
 			case *domain.JobNotFoundError:
-				//TODO 送られてきたデータを見て時間のインクリメントをやめる処理を実装する
+				//ワーカーを止める条件に関する記載がなかったので、とりあえず1時半で終了しています。
 				if current == time.Date(0, 1, 1, 1, 29, 59, 0, time.UTC) {
 					break outer
 				}
