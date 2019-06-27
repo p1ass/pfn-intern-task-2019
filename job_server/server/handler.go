@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+//GetJobHandler はクエリパラメータとして time=00:00:00 を受け取り、一致するCreatedを持つジョブを返すハンドラーです。
 func (s *Server) GetJobHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("time")
 

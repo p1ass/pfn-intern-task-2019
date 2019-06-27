@@ -18,6 +18,7 @@ func NewWorker(cap int) *Worker {
 	return &Worker{jobPQ: pq, capacity: cap}
 }
 
+//AddJob はジョブを実行中かキューに追加する関数です。
 func (w *Worker) AddJob(j *Job) {
 	if w.currentPoint+j.Tasks[j.CurrentTask] > w.capacity || w.jobPQ.Len() != 0 {
 		w.addJobToQueue(j)
@@ -35,6 +36,7 @@ func (w *Worker) addJobToQueue(j *Job) {
 	heap.Push(w.jobPQ, j)
 }
 
+//ExecuteAllJob は実行できるすべてのジョブを与えられた秒数だけ実行します。
 func (w *Worker) ExecuteAllJob(secs int) int {
 	sumPoint := 0
 
@@ -71,6 +73,7 @@ func (w *Worker) CurrentPoint() int {
 	return w.currentPoint
 }
 
+// moveJobToWorking は空いているキャパシティに応じて、新しいジョブを実行中に移す関数です。
 func (w *Worker) moveJobToWorking() int {
 	point := 0
 	for w.jobPQ.Len() > 0 {
