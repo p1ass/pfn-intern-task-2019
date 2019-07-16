@@ -6,6 +6,10 @@ PFN夏季インターンシップのコーディング課題公開されてい�
 
 [2019年 PFN夏季インターンシップのコーディング課題公開](https://research.preferred.jp/2019/06/internship-coding-task-2019/)
 
+## 解説ブログ
+
+[PFNのインターン課題が公開されたので解いてみた](https://blog.naoki.dev/posts/pfn-intern-task/)
+
 ## 環境
 - OS: MacOS Mojave 10.14.5
 - 言語: Go 1.12
