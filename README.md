@@ -8,7 +8,7 @@ PFN夏季インターンシップのコーディング課題公開されてい�
 
 ## 解説ブログ
 
-[PFNのインターン課題が公開されたので解いてみた](https://blog.naoki.dev/posts/pfn-intern-task/)
+[PFNのインターン課題が公開されたので解いてみた](https://blog.p1ass.com/posts/pfn-intern-task/)
 
 ## 環境
 - OS: MacOS Mojave 10.14.5
@@ -16,7 +16,7 @@ PFN夏季インターンシップのコーディング課題公開されてい�
 
 ## 事前準備
 ```bash
-git clone https://github.com/naoki-kishi/pfn-intern-task-2019.git
+git clone https://github.com/p1ass/pfn-intern-task-2019.git
 
 ```
 
